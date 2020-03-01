@@ -171,7 +171,7 @@ def train(n_epochs, loaders, model, optimizer, criterion, device, path_model, fi
         time_start_epoch = time.time()  
         
         # train current epoch
-        model, train_loss_epoch = train_epoch(model,loaders["train"],optimizer,criterion,device) 
+        model, train_loss_epoch = train_epoch(model, loaders["train"], optimizer, criterion, device) 
         train_loss.append(train_loss_epoch)   
         
         # validate current epoch
@@ -275,7 +275,7 @@ if __name__ == '__main__':
     model = ResNetTransfer
 
     #freezing the parameters
-    for param in model_transfer.parameters():
+    for param in model.parameters():
         param.requires_grad = False
 
     # Replacing the last layer with a fully connected layer to retrain
@@ -289,12 +289,12 @@ if __name__ == '__main__':
 
     ## Optimizer and loss function for training
     criterion_transfer = nn.CrossEntropyLoss()
-    optimizer_transfer = optim.Adam(model_transfer.parameters(),lr) 
+    optimizer_transfer = optim.Adam(model.parameters(),args.lr) 
     scheduler_transfer = ReduceLROnPlateau(optimizer_transfer, 'min', verbose = True, factor = 0.5, patience = 7)
 
     # Trains the model 
     train(args.n_epochs, 
-          loaders_transfer, 
+          train_loader, 
           model, 
           optimizer_transfer, 
           criterion_transfer, 
