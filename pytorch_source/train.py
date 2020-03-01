@@ -78,7 +78,7 @@ def _get_train_data_loader(img_short_side_resize, img_input_size, norm_mean, nor
     #test_data = datasets.ImageFolder(testfolder, transform_test)
 
     # Create the data loaders
-    data = {"train" : train_data, "val":valid_data, "test" : test_data}
+    data = {"train" : train_data, "val":valid_data}
 
     train_loader = torch.utils.data.DataLoader(data["train"], batch_size=batch_size, num_workers=num_workers, shuffle=shuffle, pin_memory=True)
 
@@ -86,9 +86,8 @@ def _get_train_data_loader(img_short_side_resize, img_input_size, norm_mean, nor
     # If using the 5crop test time augmentation, num_workers = 0 (an error is raised otherwise) 
     # batch_size needs to be reduced during testing due to memory requirements
     valid_loader = torch.utils.data.DataLoader(data["val"], batch_size=int(np.floor(batch_size/5)), num_workers=0, shuffle=shuffle, pin_memory=True)
-    test_loader = torch.utils.data.DataLoader(data["test"], batch_size=int(np.floor(batch_size/5)), num_workers=0, shuffle=shuffle, pin_memory=True)
 
-    loaders_transfer = {"train" : train_loader, "val":valid_loader, "test" : test_loader}
+    loaders_transfer = {"train" : train_loader, "val":valid_loader}
 
     return loaders_transfer
 
@@ -218,7 +217,7 @@ if __name__ == '__main__':
     # SageMaker parameters
     parser.add_argument('--output-data-dir', type=str, default=os.environ['SM_OUTPUT_DATA_DIR'])
     parser.add_argument('--model-dir', type=str, default=os.environ['SM_MODEL_DIR'])
-    parser.add_argument('--data-dir', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
+    parser.add_argument('--data-dir', type=str, default=os.environ['SM_CHANNEL_TRAINING'])
     
     #Data preparation parameters
     parser.add_argument('--img_short_side_resize', type=int, default=256, metavar='I',
@@ -229,13 +228,13 @@ if __name__ == '__main__':
                         help='Dataloader shuffle (default: True)')
     parser.add_argument('--num_workers', type=int, default=16, metavar='I',
                         help='number of workers in data preparation (default: 16)')
-    parser.add_argument('--trainfolder', type=str, default='train_img', metavar='I',
+    parser.add_argument('--trainfolder', type=str, default='/train_img', metavar='I',
                         help='Name of the folder containing training data (default: train_img)')
-    parser.add_argument('--validfolder', type=str, default='valid_img', metavar='I',
+    parser.add_argument('--validfolder', type=str, default='/valid_img', metavar='I',
                         help='Name of the folder containing validation data (default: valid_img)')
 
     # Training Parameters
-    parser.add_argument('--batch-size', type=int, default=64, metavar='N',
+    parser.add_argument('--batch_size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument('--n_epochs', type=int, default=10, metavar='N',
                         help='number of epochs to train (default: 10)')
@@ -300,7 +299,7 @@ if __name__ == '__main__':
           optimizer_transfer, 
           criterion_transfer, 
           device, 
-          args.model_dir, 
+          os.path.join(args.model_dir, 'model.pth'), 
           fivecrop = "mean", 
           lr_scheduler = scheduler_transfer)
 
