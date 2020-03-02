@@ -75,7 +75,6 @@ def _get_train_data_loader(img_short_side_resize, img_input_size, norm_mean, nor
 
     train_data = datasets.ImageFolder(datadir + trainfolder, transform_train)
     valid_data = datasets.ImageFolder(datadir + validfolder, transform_test)
-    #test_data = datasets.ImageFolder(testfolder, transform_test)
 
     # Create the data loaders
     data = {"train" : train_data, "val":valid_data}
@@ -277,9 +276,10 @@ if __name__ == '__main__':
     #freezing the parameters
     for param in model.parameters():
         param.requires_grad = False
-
+        
     # Replacing the last layer with a fully connected layer to retrain
-    model.fc = nn.Linear(model.fc.in_features, args.n_classes)
+    n_classes = args.n_classes-1
+    model.fc = nn.Linear(model.fc.in_features, n_classes) #n_classes - 1 because of the pytorch count
 
     # Initialize the weights of the new layer
     nn.init.kaiming_normal_(model.fc.weight, nonlinearity='relu')
@@ -307,11 +307,11 @@ if __name__ == '__main__':
     model_info_path = os.path.join(args.model_dir, 'model_info.pth')
     with open(model_info_path, 'wb') as f:
         model_info = {
-            'n_classes': args.n_classes,
+            'n_classes': n_classes,
         }
         torch.save(model_info, f)
         
-	# Save the model parameters
+    # Save the model parameters
     model_path = os.path.join(args.model_dir, 'model.pth')
     with open(model_path, 'wb') as f:
         torch.save(model.state_dict(), f)
