@@ -243,7 +243,7 @@ if __name__ == '__main__':
                         help='learning rate (default: 3e-4)')
     
     # Model Parameters
-    parser.add_argument("--n_classes", type=int, default=2, metavar="O", help="output dimension of the model (int - default: 2)")
+    parser.add_argument("--n_classes", type=int, default=2, metavar="M", help="output dimension of the model (int - default: 2)")
     
     
     # args holds all passed-in arguments
@@ -278,7 +278,7 @@ if __name__ == '__main__':
         param.requires_grad = False
         
     # Replacing the last layer with a fully connected layer to retrain
-    model.fc = nn.Linear(model.fc.in_features, argd.n_classes) 
+    model.fc = nn.Linear(model.fc.in_features, args.n_classes) 
 
     # Initialize the weights of the new layer
     nn.init.kaiming_normal_(model.fc.weight, nonlinearity='relu')
@@ -307,7 +307,7 @@ if __name__ == '__main__':
     model_info_path = os.path.join(args.model_dir, 'model_info.pth')
     with open(model_info_path, 'wb') as f:
         model_info = {
-            'n_classes': arg.n_classes,
+            'n_classes': args.n_classes,
         }
         torch.save(model_info, f)
         
