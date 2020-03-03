@@ -278,8 +278,7 @@ if __name__ == '__main__':
         param.requires_grad = False
         
     # Replacing the last layer with a fully connected layer to retrain
-    n_classes = args.n_classes-1
-    model.fc = nn.Linear(model.fc.in_features, n_classes) #n_classes - 1 because of the pytorch count
+    model.fc = nn.Linear(model.fc.in_features, argd.n_classes) 
 
     # Initialize the weights of the new layer
     nn.init.kaiming_normal_(model.fc.weight, nonlinearity='relu')
@@ -291,6 +290,7 @@ if __name__ == '__main__':
     criterion_transfer = nn.CrossEntropyLoss()
     optimizer_transfer = optim.Adam(model.parameters(),args.lr) 
     scheduler_transfer = ReduceLROnPlateau(optimizer_transfer, 'min', verbose = True, factor = 0.5, patience = 7)
+    
 
     # Trains the model 
     train(args.n_epochs, 
@@ -307,7 +307,7 @@ if __name__ == '__main__':
     model_info_path = os.path.join(args.model_dir, 'model_info.pth')
     with open(model_info_path, 'wb') as f:
         model_info = {
-            'n_classes': n_classes,
+            'n_classes': arg.n_classes,
         }
         torch.save(model_info, f)
         
