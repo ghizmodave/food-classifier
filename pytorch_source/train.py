@@ -250,7 +250,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
     print("Using device {}.".format(device))
+    if torch.cuda.is_available():
+        print("Using",torch.cuda.get_device_name(device))
 
     torch.manual_seed(args.seed)
 
