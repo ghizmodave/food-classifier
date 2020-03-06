@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+import json
 
 import torch
 import torch.optim as optim
@@ -79,7 +80,7 @@ def input_fn(request_body, request_content_type):
 def output_fn(prediction_output, accept):
     print('Serializing the generated output.')
     
-    return prediction_output, accept #,  in case I want to add prob
+    return json.dumps({'class' : prediction_output['class'], 'prob' : list(prediction_output['prob'])}), accept 
 
 
 def predict_fn(input_data, model):
@@ -92,6 +93,6 @@ def predict_fn(input_data, model):
     output = torch.argmax(scores).to("cpu").item()
     prob = F.softmax(scores,dim=0).to("cpu").data.numpy()
     
-    result = {'class': output, 'prob':prob}
+    result = {'class': float(output), 'prob':[float(i) for i in prob]}
     
     return result
