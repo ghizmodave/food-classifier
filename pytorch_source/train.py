@@ -56,7 +56,7 @@ def model_fn(model_dir):
 
 # Gets prepared training data for the Dataloaders
 def _get_train_data_loader(img_short_side_resize, img_input_size, norm_mean, norm_std,
-                           shuffle, num_workers, batch_size, datadir, trainfolder, validfolder):
+                           shuffle, num_workers, batch_size, datadir, trainfolder, validfolder, testfolder):
     print("Get train data loader.")
 
     transform_train = transforms.Compose([
@@ -75,9 +75,10 @@ def _get_train_data_loader(img_short_side_resize, img_input_size, norm_mean, nor
 
     train_data = datasets.ImageFolder(datadir + trainfolder, transform_train)
     valid_data = datasets.ImageFolder(datadir + validfolder, transform_test)
+    test_data = datasets.ImageFolder(datadir + testfolder, transform_test)
 
     # Create the data loaders
-    data = {"train" : train_data, "val":valid_data}
+    data = {"train" : train_data, "val":valid_data, "test":test_data}
 
     train_loader = torch.utils.data.DataLoader(data["train"], batch_size=batch_size, num_workers=num_workers, shuffle=shuffle, pin_memory=True)
 
@@ -85,10 +86,13 @@ def _get_train_data_loader(img_short_side_resize, img_input_size, norm_mean, nor
     # If using the 5crop test time augmentation, num_workers = 0 (an error is raised otherwise) 
     # batch_size needs to be reduced during testing due to memory requirements
     valid_loader = torch.utils.data.DataLoader(data["val"], batch_size=int(np.floor(batch_size/5)), num_workers=0, shuffle=shuffle, pin_memory=True)
+    test_loader = torch.utils.data.DataLoader(data["test"], batch_size=int(np.floor(batch_size/5)), num_workers=0, shuffle=shuffle, pin_memory=True)
 
-    loaders_transfer = {"train" : train_loader, "val":valid_loader}
+    loaders_transfer = {"train" : train_loader, "val":valid_loader, "test": test_loader}
 
     return loaders_transfer
+
+
 
 import time
 import datetime
@@ -208,6 +212,45 @@ def train(n_epochs, loaders, model, optimizer, criterion, device, path_model, fi
     return model
 
 
+
+def test(loaders, model, criterion, device):
+    """
+    test function
+    """
+    
+    test_loss = 0.
+    correct = 0.
+    total = 0.
+    
+    model.eval()
+    
+    with torch.no_grad():
+        
+        for batch_idx, (data, target) in enumerate(loaders['test']):
+            
+            data, target = data.to(device), target.to(device) # move to GPU
+            
+            bs, ncrops, c, h, w = data.size()
+            
+            # forward pass: compute predicted outputs by passing inputs to the model
+            output = model(data.view(-1, c, h, w)) # fuse batch size and ncrops
+            output = output.view(bs, ncrops, -1).mean(1)    
+            
+            loss = criterion(output, target) # calculate the loss
+            
+            test_loss = test_loss + ((1 / (batch_idx + 1)) * (loss.data - test_loss)) # update average test loss 
+            
+            pred = output.data.max(1, keepdim=True)[1] # convert output probabilities to predicted class
+            
+            # compare predictions to true label
+            correct += np.sum(np.squeeze(pred.eq(target.data.view_as(pred))).cpu().numpy()) 
+            total += data.size(0)            
+            
+    print('Test Loss: {:.6f}\n'.format(test_loss))
+    print('\nTest Accuracy: %2d%% (%2d/%2d)' % (
+        100. * correct / total, correct, total))
+
+
 if __name__ == '__main__':
     
     # Parameters settings
@@ -262,7 +305,7 @@ if __name__ == '__main__':
     norm_mean = [0.485, 0.456, 0.406]
     norm_std = [0.229, 0.224, 0.225]
 
-    train_loader = _get_train_data_loader(args.img_short_side_resize, 
+    train_test_data_loader = _get_train_data_loader(args.img_short_side_resize, 
                                           args.img_input_size,
                                           norm_mean,
                                           norm_std,
@@ -296,8 +339,8 @@ if __name__ == '__main__':
     
 
     # Trains the model 
-    train(args.n_epochs, 
-          train_loader, 
+    model = train(args.n_epochs, 
+          train_test_data_loader, 
           model, 
           optimizer_transfer, 
           criterion_transfer, 
@@ -318,3 +361,6 @@ if __name__ == '__main__':
     model_path = os.path.join(args.model_dir, 'model.pth')
     with open(model_path, 'wb') as f:
         torch.save(model.state_dict(), f)
+        
+        
+    test(train_test_data_loader, model, criterion_transfer, device)
