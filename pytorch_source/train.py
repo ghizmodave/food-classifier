@@ -274,6 +274,8 @@ if __name__ == '__main__':
                         help='Name of the folder containing training data (default: train_img)')
     parser.add_argument('--validfolder', type=str, default='/valid_img', metavar='I',
                         help='Name of the folder containing validation data (default: valid_img)')
+    parser.add_argument('--testfolder', type=str, default='/test_img', metavar='I',
+                        help='Name of the folder containing test data (default: test_img)')
 
     # Training Parameters
     parser.add_argument('--batch_size', type=int, default=64, metavar='N',
@@ -314,7 +316,8 @@ if __name__ == '__main__':
                                           args.batch_size, 
                                           args.data_dir,
                                           args.trainfolder,
-                                          args.validfolder)
+                                          args.validfolder,
+                                          args.testfolder)
 
     # Load the ResNet model
     model = ResNetTransfer
