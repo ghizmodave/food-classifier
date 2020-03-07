@@ -356,7 +356,7 @@ if __name__ == '__main__':
     model_info_path = os.path.join(args.model_dir, 'model_info.pth')
     with open(model_info_path, 'wb') as f:
         model_info = {
-            'n_classes': args.n_classes,
+            'n_classes': args.n_classes
         }
         torch.save(model_info, f)
         

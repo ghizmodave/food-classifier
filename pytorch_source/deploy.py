@@ -57,8 +57,6 @@ def model_fn(model_dir):
     return model
 
 
-
-
 def input_fn(request_body, request_content_type):
     print('Deserializing the input data.')
     if request_content_type == 'application/x-image':
