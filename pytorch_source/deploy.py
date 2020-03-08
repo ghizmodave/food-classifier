@@ -21,6 +21,8 @@ from model import ResNetTransfer
 from PIL import Image
 import io
 
+import pickle
+
 
 def model_fn(model_dir):
     """Load the PyTorch model from the `model_dir` directory."""
@@ -49,12 +51,18 @@ def model_fn(model_dir):
     model_path = os.path.join(model_dir, 'model.pth')
     with open(model_path, 'rb') as f:
         model.load_state_dict(torch.load(f))
+        
+    # Load the output mapper
+    output_mapping_path = os.path.join(model_dir, 'output_mapping.pth')
+    with open(output_mapping_path, 'rb') as f:
+        mapping_dict = pickle.load(f)
+
 
     # set to eval mode, could use no_grad
     model.to(device).eval()
 
     print("Done loading model.")
-    return model
+    return model, mapping_dict
 
 
 def input_fn(request_body, request_content_type):
@@ -77,12 +85,15 @@ def input_fn(request_body, request_content_type):
     
 def output_fn(prediction_output, accept):
     print('Serializing the generated output.')
-    
-    return json.dumps({'class' : prediction_output['class'], 'prob' : list(prediction_output['prob'])}), accept 
+    return json.dumps({'class' : prediction_output['class'], 'prob' : list(prediction_output['prob']),
+                      'class_name': prediction_output['class_name'], 'class_name_mapping': prediction_output['class_name_mapping']}), accept 
 
 
 def predict_fn(input_data, model):
     # load the image and return the predicted food
+    mapping_dict = model[1] #retrieving mapping dictionary
+    model = model[0] #retrieving model
+    
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     pred_output = model(input_data.to(device))
@@ -91,6 +102,6 @@ def predict_fn(input_data, model):
     output = torch.argmax(scores).to("cpu").item()
     prob = F.softmax(scores,dim=0).to("cpu").data.numpy()
     
-    result = {'class': float(output), 'prob':[float(i) for i in prob]}
+    result = {'class': float(output), 'class_name': str(mapping_dict[int(output)]) 'prob':[float(i) for i in prob], 'class_names_mapping':mapping_dict}
     
     return result

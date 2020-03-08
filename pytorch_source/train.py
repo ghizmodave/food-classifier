@@ -18,6 +18,8 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 # imports the model in model.py by name
 from model import ResNetTransfer
 
+import pickle
+
 
 def model_fn(model_dir):
     """Load the PyTorch model from the `model_dir` directory."""
@@ -88,7 +90,10 @@ def _get_train_data_loader(img_short_side_resize, img_input_size, norm_mean, nor
     valid_loader = torch.utils.data.DataLoader(data["val"], batch_size=int(np.floor(batch_size/5)), num_workers=0, shuffle=shuffle, pin_memory=True)
     test_loader = torch.utils.data.DataLoader(data["test"], batch_size=int(np.floor(batch_size/5)), num_workers=0, shuffle=shuffle, pin_memory=True)
 
-    loaders_transfer = {"train" : train_loader, "val":valid_loader, "test": test_loader}
+    #mapping output to class name
+    mapping_dict = dict(zip(list(test_data.class_to_idx.values()),list(test_data.class_to_idx.keys())))
+    
+    loaders_transfer = {"train" : train_loader, "val":valid_loader, "test": test_loader, "output_mapping": mapping_dict}
 
     return loaders_transfer
 
@@ -123,6 +128,7 @@ def train_epoch(model,train_loader,optimizer,criterion,device):
     train_loss = train_loss / len(train_loader.dataset)
     return model, train_loss
         
+    
 def valid_epoch(model, valid_loader, criterion, device, fivecrop):
     """
     validation prediction steps at each epoch
@@ -353,6 +359,7 @@ if __name__ == '__main__':
           lr_scheduler = scheduler_transfer)
 
     # Keep the keys of this dictionary as they are 
+    print("Saving model info...")
     model_info_path = os.path.join(args.model_dir, 'model_info.pth')
     with open(model_info_path, 'wb') as f:
         model_info = {
@@ -361,9 +368,16 @@ if __name__ == '__main__':
         torch.save(model_info, f)
         
     # Save the model parameters
+    print("Saving model parameters...")
     model_path = os.path.join(args.model_dir, 'model.pth')
     with open(model_path, 'wb') as f:
         torch.save(model.state_dict(), f)
+    
+    # Save the output mapping:
+    print("Saving the class mapping dictionary...")
+    output_mapping_path = os.path.join(args.model_dir, 'output_mapping.pkl')
+    with open(output_mapping_path, 'wb') as f:
+        pickle.dump(train_test_data_loader['output_mapping'], f)
         
-        
+    #test
     test(train_test_data_loader, model, criterion_transfer, device)
