@@ -53,7 +53,7 @@ def model_fn(model_dir):
         model.load_state_dict(torch.load(f))
         
     # Load the output mapper
-    output_mapping_path = os.path.join(model_dir, 'output_mapping.pth')
+    output_mapping_path = os.path.join(model_dir, 'output_mapping.pkl')
     with open(output_mapping_path, 'rb') as f:
         mapping_dict = pickle.load(f)
 
@@ -86,7 +86,7 @@ def input_fn(request_body, request_content_type):
 def output_fn(prediction_output, accept):
     print('Serializing the generated output.')
     return json.dumps({'class' : prediction_output['class'], 'prob' : list(prediction_output['prob']),
-                      'class_name': prediction_output['class_name'], 'class_name_mapping': prediction_output['class_name_mapping']}), accept 
+                      'class_name': prediction_output['class_name'], 'class_names_mapping': prediction_output['class_names_mapping']}), accept 
 
 
 def predict_fn(input_data, model):
@@ -102,6 +102,6 @@ def predict_fn(input_data, model):
     output = torch.argmax(scores).to("cpu").item()
     prob = F.softmax(scores,dim=0).to("cpu").data.numpy()
     
-    result = {'class': float(output), 'class_name': str(mapping_dict[int(output)]) 'prob':[float(i) for i in prob], 'class_names_mapping':mapping_dict}
+    result = {'class': float(output), 'class_name': str(mapping_dict[int(output)]), 'prob':[float(i) for i in prob], 'class_names_mapping':mapping_dict}
     
     return result
