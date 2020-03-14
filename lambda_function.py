@@ -22,7 +22,7 @@ def lambda_handler(event, context):
     runtime = boto3.Session().client('sagemaker-runtime')
 
     # Now we use the SageMaker runtime to invoke our endpoint, sending the review we were given
-    response = runtime.invoke_endpoint(EndpointName = '',    # The name of the endpoint we created
+    response = runtime.invoke_endpoint(EndpointName = 'sagemaker-pytorch-2020-03-14-15-27-31-449',    # The name of the endpoint we created
                                        ContentType = 'application/x-image',                 # The data format that is expected
                                        Accept = 'application/json',
                                        Body = img_to_byte(event))                       # The image transformed to byte
