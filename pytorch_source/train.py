@@ -162,13 +162,12 @@ def valid_epoch(model, valid_loader, criterion, device, fivecrop):
     return valid_loss
 
 
-def train(n_epochs, loaders, model, optimizer, criterion, device, path_model, fivecrop = None, lr_scheduler = None):
+def train(n_epochs, loaders, model, optimizer, criterion, device, path_model, fivecrop = None, lr_scheduler = None, valid_loss_min = np.Inf):
     """
     model training
     """
     
     # initialize tracker for minimum validation loss
-    valid_loss_min = np.Inf 
     train_loss = []
     valid_loss = []
     
@@ -190,11 +189,14 @@ def train(n_epochs, loaders, model, optimizer, criterion, device, path_model, fi
         if lr_scheduler is not None:
             lr_scheduler.step(valid_loss_epoch)
         valid_loss.append(valid_loss_epoch)  
+
+        is_best = False
         
         if valid_loss_epoch <= valid_loss_min: # save if validation loss is the lowest so far
             torch.save(model.state_dict(), path_model)
             valid_loss_min = valid_loss_epoch 
             best_epoch = epoch
+            is_best = True
             
         # print epoch stats
         currentDT = datetime.datetime.now()
@@ -206,6 +208,21 @@ def train(n_epochs, loaders, model, optimizer, criterion, device, path_model, fi
             train_loss_epoch,
             valid_loss_epoch
             ))   
+
+        #save the best model status for resuming training
+        if is_best:
+            model_status = {
+                    'epoch': epoch,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(), 
+                    'train_loss': train_loss,
+                    'valid_loss': valid_loss_epoch,
+                    'valid_loss_min': valid_loss_min}
+
+            if lr_scheduler is not None:
+                model_status['scheduler'] = lr_scheduler.state_dict()
+
+            torch.save(model_status, path_model + ".tar")
         
     # print final statistics    
     print(f"{n_epochs} epochs trained in {(time.time() - time_start):.3f} seconds. ") 
