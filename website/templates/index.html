@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Food Classifier Web App</title>
+        <meta charset="utf-8">
+        <meta name="viewport"  content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    </head>
+    <body>
+        <div class="container">
+            <h1>What's the food on your plate?</h1>
+            <p>Upload your image and click submit to find out...</p>
+            <form action = "{{ url_for('upload_img') }}" method="POST" enctype="multipart/form-data">
+
+              <div class="form-group">
+                  <label>Select image </label>
+                  <div class="custom-file">
+                    <input type="file" align="center" name="img" id="img">
+
+                  </div>
+             </div>
+
+              <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+
+            <!--{% if uploaded_image %}
+                <img src="{{ uploaded_image }}" alt="uploaded_image" width=200 height=200 method="GET">
+            {% endif %} -->
+        </div>
+    </body>
+</html>
