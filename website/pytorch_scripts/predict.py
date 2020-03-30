@@ -16,12 +16,12 @@ ResNetTransfer = models.resnet50(pretrained=True)
 model_info = {}
 model_info_path = os.path.join(model_dir, 'model_info.pth')
 with open(model_info_path, 'rb') as f:
-    model_info = torch.load(f)
+    model_info = torch.load(f, map_location="cpu")
 
 print("model_info: {}".format(model_info))
 
 # Determine the device and construct the model.
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu") #("cuda" if torch.cuda.is_available() else "cpu")
 print("Using device {}.".format(device))
 
 #transfer-learning steps
@@ -48,7 +48,7 @@ print("Model loaded...")
 
 def predict_image(input_data):
     # load the image and return the predicted food
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cpu") #('cuda' if torch.cuda.is_available() else 'cpu')
 
     pred_output = model(input_data.to(device))
     scores = pred_output.mean(0)
