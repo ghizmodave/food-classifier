@@ -16,7 +16,7 @@ ResNetTransfer = models.resnet50(pretrained=True)
 model_info = {}
 model_info_path = os.path.join(model_dir, 'model_info.pth')
 with open(model_info_path, 'rb') as f:
-    model_info = torch.load(f, map_location="cpu")
+    model_info = torch.load(f)
 
 print("model_info: {}".format(model_info))
 
@@ -33,7 +33,7 @@ model.fc = nn.Linear(model.fc.in_features, model_info["n_classes"])
 # Load the stored model parameters.
 model_path = os.path.join(model_dir, 'model.pth')
 with open(model_path, 'rb') as f:
-    model.load_state_dict(torch.load(f))
+    model.load_state_dict(torch.load(f, map_location="cpu"))
 
 # Load the output mapper
 output_mapping_path = os.path.join(model_dir, 'output_mapping.pkl')
