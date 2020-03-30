@@ -9,7 +9,9 @@ import os
 
 app = Flask(__name__)
 
-IMAGE_UPLOADS = "storage/"
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+IMAGE_UPLOADS = current_dir + "/storage/"
 
 app.config["IMAGE_UPLOADS"] = IMAGE_UPLOADS
 
@@ -34,8 +36,6 @@ def upload_img():
 
             #predict
             prediction = predict_image(processed_img)
-
-            print(prediction)
 
             predicted_name = prediction['class_name'].replace("_", " ").capitalize() + " ({}% sure...)".format(round(prediction['prob'][int(prediction['class'])]*100, 2))
 
