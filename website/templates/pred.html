@@ -11,6 +11,7 @@
         <div class="container">
           <h1>What's the food on your plate?</h1>
           <img src="{{ url_for('send_file', filename=filename) }}" alt="uploaded_image">
+          <h1>{{predicted_name}}</h1>
         </div>
     </body>
 </html>

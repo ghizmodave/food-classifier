@@ -1,4 +1,8 @@
 from flask import Flask, request, render_template, redirect, url_for, send_from_directory
+
+from pytorch_scripts.process import process_image
+from pytorch_scripts.predict import predict_image
+
 from PIL import Image
 import io
 import os
@@ -24,25 +28,28 @@ def upload_img():
         if request.files: #veryfying that it contains files
 
             img_req = request.files['img'] #selecting the file with name = "img"
-            #print(img_req)
 
-            img = Image.open(img_req)
+            #process the image for prediction
+            processed_img = process_image(img_req)
 
+            #predict
+            prediction = predict_image(processed_img)
+
+            #storing the image
             filename = img_req.filename
-
             save_img_path = os.path.join(app.config["IMAGE_UPLOADS"], filename)
-
-            img.save(save_img_path) #storing the image
-
+            img = Image.open(img_req)
+            img.save(save_img_path)
             print("Image saved...")
 
-            return redirect(url_for('uploaded_file', filename=filename))
+            #send the image to 'uploaded_file' to be rendered on pred.html
+            return redirect(url_for('uploaded_file', filename=filename, predicted_name = prediction['class_name']))
 
     return render_template("index.html")
 
-@app.route('/show/<filename>')
-def uploaded_file(filename):
-    return render_template('pred.html', filename=filename)
+@app.route('/show/<filename>/<predicted_name>')
+def uploaded_file(filename, predicted_name):
+    return render_template('pred.html', filename=filename, predicted_name=predicted_name)
 
 @app.route('/uploads/<filename>')
 def send_file(filename):
