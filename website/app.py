@@ -35,6 +35,10 @@ def upload_img():
             #predict
             prediction = predict_image(processed_img)
 
+            print(prediction)
+
+            predicted_name = prediction['class_name'].replace("_", " ").capitalize() + " ({}% sure...)".format(round(prediction['prob'][int(prediction['class'])]*100, 2))
+
             #storing the image
             filename = img_req.filename
             save_img_path = os.path.join(app.config["IMAGE_UPLOADS"], filename)
@@ -43,7 +47,9 @@ def upload_img():
             print("Image saved...")
 
             #send the image to 'uploaded_file' to be rendered on pred.html
-            return redirect(url_for('uploaded_file', filename=filename, predicted_name = prediction['class_name']))
+            return redirect(url_for('uploaded_file', filename=filename, predicted_name = predicted_name))
+
+        print(img)
 
     return render_template("index.html")
 
