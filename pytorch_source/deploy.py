@@ -11,7 +11,6 @@ import torch.utils.data
 from torchvision import datasets
 import torchvision.transforms as transforms
 
-import torch.optim as optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 import torch.nn.functional as F
 
