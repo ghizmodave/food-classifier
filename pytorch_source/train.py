@@ -198,34 +198,54 @@ def train(n_epochs, loaders, model, optimizer, criterion, device, path_model, fi
             best_epoch = epoch
             is_best = True
             
-        # print epoch stats
+        #epoch time tracker
+        minutes_past_epoch = (time.time() - time_start_epoch)//60
+        seconds_spare_epoch = round((time.time() - time_start_epoch)%60)
         currentDT = datetime.datetime.now()
         exact_time =  str(currentDT.hour) + ":" + str(currentDT.minute) + ":" + str(currentDT.second)
-        print('Epoch {} done in {:.2f} seconds at {}. \tTraining Loss: {:.3f} \tValidation Loss: {:.3f}'.format( 
+        
+        # print epoch stats
+        print('Epoch {} done in {} minutes and {} seconds at {}. \tTraining Loss: {:.3f} \tValidation Loss: {:.3f}'.format( 
             epoch,             
-            time.time() - time_start_epoch,
+            minutes_past_epoch,
+            seconds_spare_epoch,
             exact_time,
             train_loss_epoch,
             valid_loss_epoch
             ))   
-
+        
         #save the best model status for resuming training
+        model_status = {
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(), 
+                'train_loss': train_loss,
+                'valid_loss': valid_loss,
+                'train_loss_min': min(train_loss),
+                'valid_loss_min': valid_loss_min,
+                'is_best': is_best}
+
+        if lr_scheduler is not None:
+            model_status['scheduler'] = lr_schedulis_best.state_dict()
+        
         if is_best:
-            model_status = {
-                    'epoch': epoch,
-                    'model_state_dict': model.state_dict(),
-                    'optimizer_state_dict': optimizer.state_dict(), 
-                    'train_loss': train_loss,
-                    'valid_loss': valid_loss_epoch,
-                    'valid_loss_min': valid_loss_min}
-
-            if lr_scheduler is not None:
-                model_status['scheduler'] = lr_scheduler.state_dict()
-
-            torch.save(model_status, path_model + ".tar")
+            print("Best validation results so far - saving best model in {}".format(path_model + "_best.tar"))
+            torch.save(model_status, path_model + ".tar") #saving resume training model data
+            torch.save(model_status, path_model + "_best.tar") #saving best model data
+        else:
+            if train_loss_epoch <= min(train_loss):
+                torch.save(model_status, path_model + ".tar") #saving resume training model data
+            else:
+                print("Last epoch was not saved in {} since both validation and training loss didn't improve.".format(path_model + ".tar"))
+    
+    #total time tracker
+    minutes_past = (time.time() - time_start)//60
+    hours_past = minutes_past//60
+    minutes_spare = minutes_past%60
+    seconds_spare = round((time.time() - time_start)%60)
         
     # print final statistics    
-    print(f"{n_epochs} epochs trained in {(time.time() - time_start):.3f} seconds. ") 
+    print(f"{n_epochs} epochs trained in {hours_past} hours, {minutes_spare} minutes and {seconds_spare} seconds. ") 
     
     print("Best model obtained at epoch {} with minimum validation loss : {:.3f}".format(best_epoch, valid_loss_min))
     
