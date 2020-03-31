@@ -226,7 +226,7 @@ def train(n_epochs, loaders, model, optimizer, criterion, device, path_model, fi
                 'is_best': is_best}
 
         if lr_scheduler is not None:
-            model_status['scheduler'] = lr_schedulis_best.state_dict()
+            model_status['scheduler'] = lr_scheduler.state_dict()
         
         if is_best:
             print("Best validation results so far - saving best model in {}".format(path_model + "_best.tar"))
