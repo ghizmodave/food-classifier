@@ -1,3 +1,12 @@
+#==================================================================================#
+# Author       : Davide Mariani                                                    #
+# Script Name  : app.py                                                            #
+# Description  : food images classifier web app                                    #
+#==================================================================================#
+# App developed using Flask and deployed using heroku on the website               #
+# https://foodimage-classifier.herokuapp.com/                                      #
+#==================================================================================#
+
 from flask import Flask, request, render_template, redirect, url_for, send_from_directory
 
 from pytorch_scripts.process import process_image
