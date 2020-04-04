@@ -52,7 +52,15 @@ def train_epoch(model,train_loader,optimizer,criterion,device):
 
 def valid_epoch(model, valid_loader, criterion, device, fivecrop):
     """
-    This function performs the validation steps done at each epoch
+    This function performs the validation steps done at each epoch.
+    Attributes:
+    model : the pytorch model to validate
+    valid_loader : a torch.utils.DataLoader containing validation data
+    criterion : a pytorch loss metric
+    device : cpu or cuda depending on the machine specs
+    fivecrop : specify if the crop function (which crops the given PIL Image into four corners and the central crop)
+               is used with "mean", "max" or not used at all.
+
     """
     valid_loss = 0.0
 
@@ -63,7 +71,6 @@ def valid_epoch(model, valid_loader, criterion, device, fivecrop):
 
             data, target = data.to(device), target.to(device) # move to GPU
 
-            # if we do test time augmentation with 5crop we'll have an extra dimension in our tensor
             if fivecrop == "mean":
                 bs, ncrops, c, h, w = data.size()
                 output = model(data.view(-1, c, h, w)) # fuse batch size and ncrops
@@ -87,15 +94,35 @@ def train(n_epochs, loaders, model, optimizer, criterion, device, path_model,
     fivecrop = None, lr_scheduler = None, valid_loss_min = np.Inf,
     start_epoch=1, train_loss = [], valid_loss = []):
     """
-    model training
+    This function performs the full training process over a specified number of epochs.
+    It returns a trained model and saves the following files:
+    - a states dictionary of the best trained model (evaluated on validation results)
+    - a .tar file containing states dictionary, model info and classes dictionary for resuming training
+    - a .tar file containing states dictionary, model info and classes dictionary of the best trained model (evaluated on validation results)
+
+    Attributes:
+    n_epochs : the number of epochs that the training algorithm should perform
+    loaders : a torch.utils.DataLoader containing training and validation data
+    model : the pytorch model to train
+    optimizer :  a pytorch optimizer
+    criterion : a pytorch loss metric
+    device : cpu or cuda depending on the machine specs
+    path_model : the path in which the outputs will be saved
+    fivecrop : specify if the crop function (which crops the given PIL Image into four corners and the central crop)
+               is used with "mean", "max" or not used at all.
+    lr_scheduler : input for pytorch functions to adjust learning rate (like ReduceLROnPlateau)
+    valid_loss_min : the best validation loss registered so far (np.Inf by default)
+    start_epoch : number of the first epoch (useful when resuming training - 1 by default)
+    train_loss : tracker of the training loss (list)
+    valid_loss : tracker of the validation loss (list)
     """
 
-    time_start = time.time()
-    best_epoch = start_epoch
+    time_start = time.time() #time tracker for the whole process
+    best_epoch = start_epoch #tracker of the best epoch for printed messages (defaults to start_epoch if a better one is not found)
 
     for epoch in range(start_epoch, start_epoch + n_epochs):
 
-        time_start_epoch = time.time()
+        time_start_epoch = time.time() #time tracker for the single epoch
 
         # train current epoch
         model, train_loss_epoch = train_epoch(model,loaders["train"],optimizer,criterion,device)
@@ -148,14 +175,14 @@ def train(n_epochs, loaders, model, optimizer, criterion, device, path_model,
             model_status['scheduler'] = lr_scheduler.state_dict()
 
         if is_best:
-            print("Best validation results so far - saving best model in {}".format(path_model.replace(".pt", "") + "_best.pt.tar"))
+            print("Best validation results so far (previous one was {}) - saving best model in {}".format(round(sorted(valid_loss)[-2],3), path_model.replace(".pt", "") + "_best.pt.tar"))
             torch.save(model_status, path_model + ".tar") #saving resume training model data
             torch.save(model_status, path_model.replace(".pt", "") + "_best.pt.tar") #saving best model data
         else:
             if train_loss_epoch <= min(train_loss):
                 torch.save(model_status, path_model + ".tar") #saving resume training model data
             else:
-                print("Last epoch was not saved in {} since both validation and training loss didn't improve.")
+                print("Checkpoint was not created at last epoch since both validation of {} and training loss of {} have not been improved.".format(round(valid_loss_min,3), round(min(train_loss),3)))
 
 
     #total time tracker
@@ -177,7 +204,15 @@ def train(n_epochs, loaders, model, optimizer, criterion, device, path_model,
 ### Functions for resuming the training
 
 def load_checkpoint(model, optimizer, scheduler, losslogger, filename='models/model_res_101cat.pt.tar'):
-    # Note: Input model & optimizer should be pre-defined.  This routine only updates their states.
+    """
+    This function load a model checkpoint for resuming training.
+    Attributes:
+    model : the pytorch model on which resuming the state
+    optimizer :  the optimizer on which resuming the state
+    scheduler : the scheduler on which resuming the state
+    losslogger : the loss on which resuming the state
+    filename : the file from which retrieving model training data
+    """
     start_epoch = 0
     if os.path.isfile(filename):
         print("=> loading checkpoint '{}'".format(filename))
@@ -198,8 +233,8 @@ def load_checkpoint(model, optimizer, scheduler, losslogger, filename='models/mo
         train_loss_tracker = checkpoint['train_loss']
         valid_loss_tracker = checkpoint['valid_loss']
 
-        if checkpoint['is_best']:
-            print("Starting from the best model trained so far (based on validation results)")
+        if checkpoint['is_best']: #the parameter 'is_best' defines if the resumed training starts from the best model trained so far (based on validation results)
+            print("Starting from the best model trained so far (based on validation results - {:.3f})".format(losslogger))
         else:
             print("Not starting from the best model trained so far (based on validation results)")
 
@@ -213,7 +248,12 @@ def load_checkpoint(model, optimizer, scheduler, losslogger, filename='models/mo
 
 def test(loaders, model, criterion, device):
     """
-    test function
+    This function performs the testing process on a trained model.
+    Attributes:
+    loaders : a torch.utils.DataLoader containing testing data
+    model : a trained pytorch model to test
+    criterion : a pytorch loss metric
+    device : cpu or cuda depending on the machine specs
     """
 
     test_loss = 0.
@@ -244,5 +284,5 @@ def test(loaders, model, criterion, device):
             correct += np.sum(np.squeeze(pred.eq(target.data.view_as(pred))).cpu().numpy())
             total += data.size(0)
 
-    print('Test Loss: {:.6f}\n'.format(test_loss))
+    print('Test Loss: {:.3f}\n'.format(test_loss))
     print('\nTest Accuracy: %2d%% (%2d/%2d)' % (100. * correct / total, correct, total))
