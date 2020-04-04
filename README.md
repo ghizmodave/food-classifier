@@ -57,7 +57,7 @@ website
    |          |----------pred.html
    |
    |-------pytorch_scripts
-   			  |----------__init__.py
+              |----------__init__.py
               |----------predict.py
               |----------process.py
               |----------prod_model
