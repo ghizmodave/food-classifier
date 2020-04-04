@@ -7,7 +7,7 @@
  * Prototyping the web app using [Flask](https://flask.palletsprojects.com/en/1.1.x/)
  * Deploying the web app with [heroku](https://www.heroku.com)
 
-Have fun trying food-classifier on the website [foodimage-classifier](https://foodimage-classifier.herokuapp.com) !
+#### Have fun trying food-classifier on the website [foodimage-classifier](https://foodimage-classifier.herokuapp.com) !
 
 > **Note**: after 15 minutes of inactivity, the app is suspended and it will restart at the next call; there might be a bit of delay running the app for the first time. In some case there is also some problem loading the page, just refresh it in case.
  
