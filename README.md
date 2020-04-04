@@ -22,7 +22,7 @@ The Food-101 data set consists of images from Foodspotting [1]. Any use beyond s
 
 ## Downloading the dataset
 
-Food-101 is a large dataset of GB that can be downloaded and extracted from a .tar file using the code below:
+Food-101 is a large dataset of about 10 GB that can be downloaded and extracted from a .tar file (having compressed size of 4.7 GB) using the code below:
 ```
 %mkdir ../data
 !wget -O ../data/food-101.tar.gz http://data.vision.ee.ethz.ch/cvl/food-101.tar.gz
