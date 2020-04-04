@@ -1,5 +1,5 @@
-food-classifier <https://travis-ci.org/thoughtbot/factory_bot?branch=master> <https://codeclimate.com/github/thoughtbot/factory_bot> <https://badge.fury.io/rb/factory_bot> <https://houndci.com>
-=================================================================================================================================================================================================
+food-classifier
+===============
 
 This repo contains the work done for developing a food image recognition web app
 deployed using [heroku](https://www.heroku.com) on the website
@@ -10,8 +10,8 @@ case there is also some problem loading the page, just refresh it in case).
 
 [Pytorch](https://pytorch.org) has been used for implementing the convolutional
 neural network (CNN) model, trained using [Amazon
-Sagemaker](https://aws.amazon.com/sagemaker/) and local resources resuming
-training in multiple sessions.
+Sagemaker](https://aws.amazon.com/sagemaker/) and local resources (with the
+training process resumed in multiple sessions.
 
  
 
@@ -22,8 +22,6 @@ The dataset used for training the CNN is retrieved from [Food-101 - Mining
 Discriminative Components with Random
 Forests](https://data.vision.ee.ethz.ch/cvl/datasets_extra/food-101/) using as a
 reference the following research paper
-
- 
 
 >   Lukas Bossard, Matthieu Guillaumin, Luc Van Gool - Food-101 – Mining
 >   Discriminative Components with Random Forests
