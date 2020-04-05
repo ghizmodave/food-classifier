@@ -63,3 +63,16 @@ website
               |----------prod_model
    
 ```
+It is possible to try the app at the website [foodimage-classifier.herokuapp.com](https://foodimage-classifier.herokuapp.com)
+
+## Running the app locally on Flask
+
+Ensure that you have Flask, Pytorch, Pillow and Pandas installed (please see website/requirements.txt for specific versions).
+Download the "website" folder.
+With the command line set:
+```
+cd path-to-website-folder
+flask run
+```
+A message like "Running on http://127.0.0.2:5000/" will appear.
+Open that URL with the browser and you'll be on the web app page.
