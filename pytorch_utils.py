@@ -175,7 +175,7 @@ def train(n_epochs, loaders, model, optimizer, criterion, device, path_model,
             model_status['scheduler'] = lr_scheduler.state_dict()
 
         if is_best:
-            print("Best validation results so far (previous one was {}) - saving best model in {}".format(round(sorted(valid_loss)[-2],3), path_model.replace(".pt", "") + "_best.pt.tar"))
+            print("Best validation results so far (previous one was {}) - saving best model in {}".format(round(sorted(valid_loss)[1],3), path_model.replace(".pt", "") + "_best.pt.tar"))
             torch.save(model_status, path_model + ".tar") #saving resume training model data
             torch.save(model_status, path_model.replace(".pt", "") + "_best.pt.tar") #saving best model data
         else:
