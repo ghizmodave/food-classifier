@@ -230,6 +230,7 @@ def train(n_epochs, loaders, model, optimizer, criterion, device, path_model, fi
         
         if is_best:
             print("Best validation results so far - saving best model in {}".format(path_model.replace(".pt", "") + "_best.pt.tar"))
+            torch.save(model.state_dict(), path_model.replace(".pt", ".pth"))
             torch.save(model_status, path_model + ".tar") #saving resume training model data
             torch.save(model_status, path_model + "_best.tar") #saving best model data
         else:

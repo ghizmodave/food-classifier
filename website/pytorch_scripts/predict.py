@@ -28,7 +28,7 @@ print("Using device {}.".format(device))
 model = ResNetTransfer
 for param in model.parameters():
     param.requires_grad = False
-model.fc = nn.Linear(model.fc.in_features, model_info["n_classes"])
+model.fc = nn.Linear(model.fc.in_features, model_info["n_classes"] - 1)
 
 # Load the stored model parameters.
 model_path = os.path.join(model_dir, 'model.pth')
