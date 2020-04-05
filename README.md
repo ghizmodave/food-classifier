@@ -2,7 +2,7 @@
 
 **food-classifier** is a food image recognition web app based on the [Food-101 dataset](http://data.vision.ee.ethz.ch/cvl/food-101.tar.gz).  
  This repository contains the code developed for:
- * Fine tuning a pre-trained [50-layer ResNet](https://arxiv.org/pdf/1512.03385.pdf) model in [Pytorch](https://pytorch.org), using [Amazon Sagemaker](https://aws.amazon.com/sagemaker/), [Paperspace](https://www.paperspace.com/) and local resources (with a training process resumed in multiple sessions).
+ * Fine tuning a pre-trained [50-layer ResNet](https://arxiv.org/pdf/1512.03385.pdf) model in [Pytorch](https://pytorch.org), using [Amazon Sagemaker](https://aws.amazon.com/sagemaker/), [Paperspace](https://www.paperspace.com/) and local resources (with a training process resumed in multiple sessions). The model is currently able to reach a 67% accuracy on the provided test set.
  * Deploying the model to an AWS endpoint
  * Prototyping the web app using [Flask](https://flask.palletsprojects.com/en/1.1.x/)
  * Deploying the web app with [heroku](https://www.heroku.com)
