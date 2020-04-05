@@ -1,3 +1,12 @@
+#==================================================================================#
+# Author       : Davide Mariani                                                    #
+# Script Name  : train.py                                                          #
+# Description  : scripts for model training in AWS Sagemaker                       #
+#==================================================================================#
+# This file contains functions implemented for training a pytorch convolutional    #
+# neural network using AWS Sagemaker                                               #
+#==================================================================================#
+
 import argparse
 import json
 import os

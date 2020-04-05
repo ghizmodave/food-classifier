@@ -1,6 +1,6 @@
 #==================================================================================#
 # Author       : Davide Mariani                                                    #
-# Script Name  : pytorch_utils.py                                                 #
+# Script Name  : pytorch_utils.py                                                  #
 # Description  : utils for pytorch model training                                  #
 #==================================================================================#
 # This file contains functions implemented for training a convolutional neural     #

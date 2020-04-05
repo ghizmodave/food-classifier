@@ -1,3 +1,12 @@
+#==================================================================================#
+# Author       : Davide Mariani                                                    #
+# Script Name  : deploy.py                                                         #
+# Description  : scripts for model deployment in AWS Sagemaker                     #
+#==================================================================================#
+# This file contains functions implemented for deploying a pytorch convolutional   #
+# neural network using AWS Sagemaker                                               #
+#==================================================================================#
+
 import os
 import pandas as pd
 import numpy as np

@@ -1,3 +1,12 @@
+#==================================================================================#
+# Author       : Davide Mariani                                                    #
+# Script Name  : predict.py                                                        #
+# Description  : scripts for model prediction in AWS Sagemaker                     #
+#==================================================================================#
+# This file contains functions implemented for testing a pytorch convolutional     #
+# neural network using AWS Sagemaker                                               #
+#==================================================================================#
+
 import torch
 import torch.nn.functional as F
 import torchvision.models as models
