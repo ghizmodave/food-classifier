@@ -7,7 +7,7 @@
  * Prototyping the web app using [Flask](https://flask.palletsprojects.com/en/1.1.x/)
  * Deploying the web app with [heroku](https://www.heroku.com)
 
-Have fun trying food-classifier on the website [foodimage-classifier](https://foodimage-classifier.herokuapp.com) !
+#### Click [here](https://foodimage-classifier.herokuapp.com) to try the web app !
 
 > **Note**: after 15 minutes of inactivity, the app is suspended and it will restart at the next call; there might be a bit of delay running the app for the first time. In some case there is also some problem loading the page, just refresh it in case.
  
@@ -22,7 +22,7 @@ The Food-101 data set consists of images from Foodspotting [1]. Any use beyond s
 
 ## Downloading the dataset
 
-Food-101 is a large dataset of GB that can be downloaded and extracted from a .tar file using the code below:
+Food-101 is a large dataset of about 10 GB that can be downloaded and extracted from a .tar file (having compressed size of 4.7 GB) using the code below:
 ```
 %mkdir ../data
 !wget -O ../data/food-101.tar.gz http://data.vision.ee.ethz.ch/cvl/food-101.tar.gz
@@ -57,7 +57,7 @@ website
    |          |----------pred.html
    |
    |-------pytorch_scripts
-   			  |----------__init__.py
+              |----------__init__.py
               |----------predict.py
               |----------process.py
               |----------prod_model
