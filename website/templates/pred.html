@@ -6,12 +6,27 @@
         <meta name="viewport"  content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
+        <script>
+          function goBack() {
+              window.history.back()
+              }
+        </script>
+
     </head>
     <body>
         <div class="container">
-          <h1>What's the food on your plate?</h1>
+          <h2>What are you eating?</h2>
+          <h1>Food images recognition using Deep Learning</h1>
           <img src="{{ url_for('send_file', filename=filename) }}" alt="uploaded_image">
-          <h1>{{predicted_name}}</h1>
+          <h2>{{predicted_name}}</h2>
+          <h4>..{{class_prob}}% sure about that..<h4>
+          <h5> I also thought of: <h5>
+          <ul>
+            {% for text in other_three_text %}
+              <li> {{text}}</li>
+            {% endfor %}
+          </ul>
+          <button onclick="goBack()" class="btn btn-info">Go Back</button>
         </div>
     </body>
 </html>

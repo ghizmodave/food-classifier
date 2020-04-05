@@ -7,6 +7,8 @@
 # https://foodimage-classifier.herokuapp.com/                                      #
 #==================================================================================#
 
+import pandas as pd
+import pickle
 from flask import Flask, request, render_template, redirect, url_for, send_from_directory
 
 from pytorch_scripts.process import process_image
@@ -23,6 +25,23 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 IMAGE_UPLOADS = current_dir + "/storage/"
 
 app.config["IMAGE_UPLOADS"] = IMAGE_UPLOADS
+
+def save_dictionary(dict, datafolder, dict_name):
+    """
+    This function saves a dictionary to a pickle file named "dict_name.pkl"
+    in the folder specified in "datafolder"
+    """
+    filepath = datafolder+dict_name+'.pkl'
+
+    # Create target folder if it doesn't exist
+    if not os.path.exists(datafolder):
+        os.mkdir(datafolder)
+
+    print("- Saving dictionary to {}".format(filepath))
+    with open(filepath, "wb") as pickle_file:
+            pickle.dump(dict, pickle_file)
+    return filepath
+
 
 @app.route("/")
 def root():
@@ -44,9 +63,11 @@ def upload_img():
             processed_img = process_image(img_req)
 
             #predict
-            prediction = predict_image(processed_img)
+            prediction = predict_image(processed_img)#
 
-            predicted_name = prediction['class_name'].replace("_", " ").capitalize() + " ({}% sure...)".format(round(prediction['prob'][int(prediction['class'])]*100, 2))
+            save_dictionary(prediction, IMAGE_UPLOADS, "pred_tmp")
+
+            predicted_name = prediction['class_name'].replace("_", " ").capitalize()
 
             #storing the image
             filename = img_req.filename
@@ -64,7 +85,18 @@ def upload_img():
 
 @app.route('/show/<filename>/<predicted_name>')
 def uploaded_file(filename, predicted_name):
-    return render_template('pred.html', filename=filename, predicted_name=predicted_name)
+    prediction = pd.read_pickle(IMAGE_UPLOADS + "pred_tmp.pkl")
+
+    class_prob = round(prediction['prob'][int(prediction['class'])]*100, 2) #print out how much the model is "sure" about the prediction
+
+    other_three_idx = [prediction['prob'].index(x) for x in sorted(prediction['prob'], reverse=True)[1:4] if x>0.0] #find the 3 other highest values in probability from prediction values
+    other_three_names = [prediction['class_names_mapping'][idx].replace("_", " ").capitalize() for idx in other_three_idx] #find the respective names
+    other_three_perc = [round(prediction['prob'][idx]*100, 2) for idx in other_three_idx] #find the respective percentage of probability
+
+    #text to send for displaying it on the app
+    other_three_text = ["{} - {}%".format(other_three_names[i], other_three_perc[i]) for i in range(len(other_three_idx))]
+
+    return render_template('pred.html', filename=filename, predicted_name=predicted_name, class_prob=class_prob, other_three_text = other_three_text)
 
 @app.route('/uploads/<filename>')
 def send_file(filename):
